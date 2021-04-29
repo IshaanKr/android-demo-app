@@ -6,9 +6,19 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import androidx.recyclerview.widget.SortedListAdapterCallback
 import com.xymenapps.demo.R
+import com.xymenapps.demo.main.listeners.MainRecyclerViewAdapterListener
+import com.xymenapps.demo.main.listeners.MainRecyclerViewListener
 import com.xymenapps.demo.main.models.MainRecyclerViewModel
 
-class MainRecyclerViewAdapter : RecyclerView.Adapter<MainRecyclerViewHolder>() {
+class MainRecyclerViewAdapter(val listener: MainRecyclerViewListener) :
+    RecyclerView.Adapter<MainRecyclerViewHolder>() {
+
+    private val adapterListener = object: MainRecyclerViewAdapterListener{
+        override fun onClicked(position: Int) {
+            listener.onClicked(getItem(position))
+        }
+    }
+
     private var mData: SortedList<MainRecyclerViewModel> =
         SortedList(
             MainRecyclerViewModel::class.java,
@@ -35,12 +45,17 @@ class MainRecyclerViewAdapter : RecyclerView.Adapter<MainRecyclerViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainRecyclerViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.main_recyclerview_item, parent, false)
-        return MainRecyclerViewHolder(view)
+
+        return MainRecyclerViewHolder(
+            itemView = view,
+            adapterListener = adapterListener
+        )
     }
 
-    override fun onBindViewHolder(holder: MainRecyclerViewHolder, position: Int) = holder.bindData(getItem(position))
+    override fun onBindViewHolder(holder: MainRecyclerViewHolder, position: Int) =
+        holder.bindData(getItem(position))
 
-    private fun getItem(position: Int): MainRecyclerViewModel = mData.get(position)
+    fun getItem(position: Int): MainRecyclerViewModel = mData.get(position)
 
     override fun getItemCount(): Int = mData.size()
 }
